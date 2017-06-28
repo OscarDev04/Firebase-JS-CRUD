@@ -19,6 +19,8 @@ $(document).ready(function(){
  })
 
   var btn_create = $("#btn_create");
+  var btn_edit = $("#btn_edit");
+
   var form_create = $("#form_create");
 
   var first_name = $("#first_name").val();
@@ -41,19 +43,58 @@ function list(){
   var alumnos = database.ref("/alumnos/");
 
     alumnos.on('child_added', (data) =>{
-       var data = data.val();
+
+       var contAlumnos = data.val();
 
         var html = ` 
 
-          <td>${ data.first_name } </td>
-          <td>${ data.last_name } </td>
+          <td>${ contAlumnos.first_name } </td>
+          <td>${ contAlumnos.last_name } </td>
 
-          <td><a class="btn btn-default" href="#" role="button">Editar</a>
-          <td><a class="btn btn-default" href="#" role="button">Eliminar</a></td> 
+          <td><a class="btn btn-default" href="#" role="button" data-uid="${ data.key }" id="btn_edit">Editar</a>
+          <td><a class="btn btn-default" href="#" role="button" id="delete">Eliminar</a></td> 
 
             `
-       var tr = $("<tr>").html(html);
+           var tr = $("<tr>").html(html);
 
-       $("#list_Alumn").append(tr)
+           $("#list_Alumn").append(tr)
     })
 }
+
+
+ $(document).on("click", '#btn_edit', function() {
+
+     var uid = $(this).data('uid');
+
+      var alumno = database.ref("/alumnos/" + uid);
+
+
+      $("#form_edit").css({"visibility":"visible"});
+
+        alumno.on('value', (data) => {
+
+                $('#first_name').val(data.val().first_name)
+                $('#last_name').val(data.val().last_name)
+
+          })
+
+
+   btn_edit.on('click', e => {
+
+     var first_name = $("#first_name").val();
+      var last_name = $("#last_name").val();
+
+      database.ref('/alumnos/' + uid).update({
+
+                    first_Name: first_name,  
+                    last_Name: last_name,
+
+                })
+
+      $("#form_edit")[0].reset();
+  })
+
+
+});
+
+
